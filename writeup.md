@@ -97,13 +97,10 @@ Similar to before, I started by reading in and labeling all the `vehicle` and `n
 | RELU					| 												|
 | Flatten				| 												|
 | Dense					| Outputs 100  									|
-| Batch Normalization	| 												|
 | RELU					| 												|
 | Dense					| Outputs 50  									|
-| Batch Normalization	| 												|
 | RELU					| 												|
 | Dense					| Outputs 10  									|
-| Batch Normalization	| 												|
 | RELU					| 												|
 | Dense					| Outputs 1  									|
 | Sigmoid				| 												|
