@@ -20,12 +20,12 @@ The goals / steps of this project are the following:
 [image3]: ./output_images/sliding_window.png
 [image4]: ./output_images/hog_predictions.png
 [image5]: ./output_images/hog_hitboxes.png
-[image6]: ./output_images/*.png
-[image7]: ./output_images/*.png
-[image8]: ./output_images/*.png
-[image9]: ./output_images/*.png
-[image10]: ./output_images/*.png
-[image11]: ./output_images/*.png
+[image6]: ./output_images/window_predictions.png
+[image7]: ./output_images/nn_hitboxes.png
+[image8]: ./output_images/heatmap.png
+[image9]: ./output_images/thresholded.png
+[image10]: ./output_images/car_detect.png
+[image11]: ./output_images/test_examples.png
 [video1]: ./output_videos/project_video.mp4
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
@@ -80,54 +80,76 @@ I used the `get_windows(img, y, scale, vis`) to search the image on a variety of
 
 ![alt text][image5]
 
-Unfortunately, the result was not as good as I had hoped.  There were a significant number of false positives detected.  While I'm sure I could have improved my SVM classifier by adding binned color features, I decided to instead apply the deep learning techniques we learned earlier in this course and train a CNN to detect cars instead as I felt a CNN would likely be a more robust model for detecting vehicles.
+Unfortunately, the result was not as good as I had hoped.  There were a significant number of false positives detected.  While I'm sure I could have improved my SVM classifier by adding binned color features, I decided to instead apply the deep learning techniques we learned earlier in this course and train a CNN to detect cars instead, as I felt a CNN would likely be a more robust model for detecting vehicles.
 
 ### Deep learning approach using a CNN
 
 #### 1. CNN architecture and training
 
-Similar to before, I started by reading in and labeling all the `vehicle` and `non-vehicle` images.
+Similar to before, I started by reading in and labeling all the `vehicle` and `non-vehicle` images, and splitting the dataset into a train and test dataset.  However this time I used a model architecture (code cell 7 of `P5_NN.ipynb`) consisting of of a convolution neural network with layers as visualized in the table below:
 
+| Layer					|Description									| 
+|:---------------------:|:---------------------------------------------:| 
+| Input					| 64,64,1 Grayscale Image						|
+| Convolution 5x5		| 32 filters, subsample=(2,2), valid padding	|
+| RELU					| 												|
+| Convolution 3x3		| 64 filters, subsample=(2,2), valid padding	|
+| RELU					| 												|
+| Flatten				| 												|
+| Dense					| Outputs 100  									|
+| Batch Normalization	| 												|
+| RELU					| 												|
+| Dense					| Outputs 50  									|
+| Batch Normalization	| 												|
+| RELU					| 												|
+| Dense					| Outputs 10  									|
+| Batch Normalization	| 												|
+| RELU					| 												|
+| Dense					| Outputs 1  									|
+| Sigmoid				| 												|
+
+I defined a preprocessing function (code cell 4 of `P5_NN.ipynb`), and a generator function (code cell 5), then trained and saved the network in code cells 6-8. Finally I defined a predict function in code cell 9 to use in conjuction with my sliding window search.
 
 ### Sliding Window Search with CNN
 
 #### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
-I decided to search random window positions at random scales all over the image and came up with this (ok just kidding I didn't actually ;):
-
-![alt text][image3]
+The sliding window search (code cell 11 of `P5_NN.ipynb`) was implemented in the same way as before, and the same scales were chosen to search.  One minor change was the addition of weights to the windows.  I found that certain scales generated more false positives, so I assigned them less weight.  The windows, scales, and weights are implemented in code cell 13 of `P5_NN.ipynb`
 
 #### 2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
-Ultimately I searched on two scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  Here are some example images:
+I used the `get_windows(img, y, scale, vis`) function to search the image on a variety of different scales  (code cell 13 of `P5_NN.ipynb`), using the CNN classifier derived from the section above and marked all the hitboxes as shown below:
 
-![alt text][image4]
+![alt text][image7]
 
+The performance achieved is much better than what I got using the HOG feature classifier, so I continued to use the CNN in my final pipeline implemented in code cell 16 of `P5_NN.ipynb` and described in the section on video implementation below.
 
 ---
 
 ### Video Implementation
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
-Here's a [link to my video result](./project_video.mp4)
+
+Here's a [link to my video result](./output_videos/project_video.mp4)
 
 
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
-I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
+I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions and thresholded the heatmap the reduce false positives.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
 
-Here's an example result showing the heatmap from a series of frames of video, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid on the last frame of video:
+Here's an example result showing the heatmap for a test image before and after thresholding, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid:
 
-### Here are six frames and their corresponding heatmaps:
+Heatmap:
 
-![alt text][image5]
+![alt text][image8]
 
-### Here is the output of `scipy.ndimage.measurements.label()` on the integrated heatmap from all six frames:
-![alt text][image6]
+Thresholded heatmap:
 
-### Here the resulting bounding boxes are drawn onto the last frame in the series:
-![alt text][image7]
+![alt text][image9]
 
+Labeling using `scipy.ndimage.measurements.label()` and bounding box overlaid
+
+![alt text][image10]
 
 
 ---
@@ -136,5 +158,7 @@ Here's an example result showing the heatmap from a series of frames of video, t
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.
+
+I first attempted the project using a SVM classifier trained on HOG gradients but shifted to a deep learning approach that worked much better.  That said there is still significant room for improvement.  The CNN still detects a number of false positives in the video, and struggles to properly classify the white car at times, sometimes seeing it as 2-3 seperate cars.  Further turning the weights and threshold might help it see the white car better, but at the expense of more false positives.  A better solution would be to try augmenting the training data set with pictures of white cars similar to the one in the video, along with pictures of objects in the video generating false positives such as the railing on the side.
 
