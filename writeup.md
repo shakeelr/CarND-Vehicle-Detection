@@ -64,7 +64,7 @@ The best SVC was found in the HSV colorspace, with 12 orientations, 16 pixels pe
 
 #### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
-I defined a function `get_windows(img, y, scale, vis` in cell 10 of `P5_HOG.ipynb` to get a row of 64x64 pixel windows from a given image, and return the resulting window images and coordinates for their corresponding boxes.  The function accepts the y coordinate for the top of the row of windows to be returned, and a scale factor, to allow searching at various scales.  An example of the boxes drawn on a sample image is shown below:
+I defined a function `get_windows(img, y, scale, vis`) in cell 10 of `P5_HOG.ipynb` to get a row of 64x64 pixel windows from a given image, and return the resulting window images and coordinates for their corresponding boxes.  The function accepts the y coordinate for the top of the row of windows to be returned, and a scale factor, to allow searching at various scales.  An example of the boxes drawn on a sample image is shown below:
 
 ![alt text][image3]
 
@@ -72,36 +72,22 @@ And the resulting labels of the windows using the SVM classifier is shown below:
 
 ![alt text][image4]
 
+
+
 #### 2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
-Ultimately I searched on two scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  Here are some example images:
+I used the `get_windows(img, y, scale, vis`) to search the image on a variety of different scales, using the SVM classifier derived from the section above and marked all the hitboxes as shown below:
 
-![alt text][image4]
+![alt text][image5]
+
+Unfortunately, the result was not as good as I had hoped.  There were a significant number of false positives detected.  While I'm sure I could have improved my SVM classifier by adding binned color features, I decided to instead apply the deep learning techniques we learned earlier in this course and train a CNN to detect cars instead as I felt a CNN would likely be a more robust model for detecting vehicles.
 
 ### Deep learning approach using a CNN
 
-#### 1. Explain how (and identify where in your code) you extracted HOG features from the training images.
+#### 1. CNN architecture and training
 
-The code for this step is contained in the first code cell of the IPython notebook (or in lines # through # of the file called `some_file.py`).  
+Similar to before, I started by reading in and labeling all the `vehicle` and `non-vehicle` images.
 
-I started by reading in all the `vehicle` and `non-vehicle` images.  Here is an example of one of each of the `vehicle` and `non-vehicle` classes:
-
-![alt text][image1]
-
-I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I grabbed random images from each of the two classes and displayed them to get a feel for what the `skimage.hog()` output looks like.
-
-Here is an example using the `YCrCb` color space and HOG parameters of `orientations=8`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`:
-
-
-![alt text][image2]
-
-#### 2. Explain how you settled on your final choice of HOG parameters.
-
-I tried various combinations of parameters and...
-
-#### 3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
-
-I trained a linear SVM using...
 
 ### Sliding Window Search with CNN
 
