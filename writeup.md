@@ -17,9 +17,9 @@ The goals / steps of this project are the following:
 [//]: # (Image References)
 [image1]: ./output_images/data_visualization.png
 [image2]: ./output_images/hog_examples.png
-[image3]: ./output_images/*.png
-[image4]: ./output_images/*.png
-[image5]: ./output_images/*.png
+[image3]: ./output_images/sliding_window.png
+[image4]: ./output_images/hog_predictions.png
+[image5]: ./output_images/hog_hitboxes.png
 [image6]: ./output_images/*.png
 [image7]: ./output_images/*.png
 [image8]: ./output_images/*.png
@@ -48,28 +48,29 @@ I started by reading in and labeling all the `vehicle` and `non-vehicle` images.
 
 ![alt text][image1]
 
-I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I grabbed random images from each of the two classes and displayed them to get a feel for what the `skimage.hog()` output looks like.
-
-Here is an example using the `YCrCb` color space and HOG parameters of `orientations=8`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`:
-
+I then visualized HOG features on a sample of images in different color spaces to get a feel for what the `skimage.hog()` output looks like, as shown below.
 
 ![alt text][image2]
 
 #### 2. Explain how you settled on your final choice of HOG parameters.
 
-I tried various combinations of parameters and...
+The data was split into training and test datasets.  I then tried various combinations of HOG parameters in different colorspaces as seen in cells 6 and 7 of the IPython notebook `P5_HOG.ipynb`, training an SVC on each set of resulting HOG features and chose the one with the best accuracy on the test dataset.
 
 #### 3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
-I trained a linear SVM using...
+The best SVC was found in the HSV colorspace, with 12 orientations, 16 pixels per block, and 4 blocks per cell.  I trained the final SVC using these parameters in cell 8 of the IPython notebook `P5_HOG.ipynb` and achieved a test accuracy of 0.9718.
 
 ### Sliding Window Search with HOG Classifier
 
 #### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
-I decided to search random window positions at random scales all over the image and came up with this (ok just kidding I didn't actually ;):
+I defined a function `get_windows(img, y, scale, vis` in cell 10 of `P5_HOG.ipynb` to get a row of 64x64 pixel windows from a given image, and return the resulting window images and coordinates for their corresponding boxes.  The function accepts the y coordinate for the top of the row of windows to be returned, and a scale factor, to allow searching at various scales.  An example of the boxes drawn on a sample image is shown below:
 
 ![alt text][image3]
+
+And the resulting labels of the windows using the SVM classifier is shown below:
+
+![alt text][image4]
 
 #### 2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
