@@ -148,6 +148,8 @@ Labeling using `scipy.ndimage.measurements.label()` and bounding box overlaid
 
 ![alt text][image10]
 
+Finally, for the video implementation I created a heatmap class to average heatmaps over a number of frames, which further reduced the false positive rate and made the bounding boxes much smoother.
+
 
 ---
 
@@ -157,5 +159,5 @@ Labeling using `scipy.ndimage.measurements.label()` and bounding box overlaid
 
 Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.
 
-I first attempted the project using a SVM classifier trained on HOG gradients but shifted to a deep learning approach that worked much better.  That said there is still significant room for improvement.  The CNN still detects a number of false positives in the video, and struggles to properly classify the white car at times, sometimes seeing it as 2-3 seperate cars.  Further turning the weights and threshold might help it see the white car better, but at the expense of more false positives.  A better solution would be to try augmenting the training data set with pictures of white cars similar to the one in the video, along with pictures of objects in the video generating false positives such as the railing on the side.
+I first attempted the project using a SVM classifier trained on HOG gradients but shifted to a deep learning approach that worked much better.  I also averaged heatmaps together over a number of frames to reduce the false positive rate and generate smoother bounding boxes.  That said there is still some room for improvement.  The CNN still detects a few occasional false positives in the video, and struggles to properly bound the white car at times.  Further turning the threshold might help it see the white car better, but at the expense of more false positives.  A better solution would be to try augmenting the training data set with pictures of white cars similar to the one in the video.
 
